@@ -1,4 +1,4 @@
--- Perplexity Admin Console 
+-- Perplexity Console 
 -- Authour: Perplexity
 
 local Players = game:GetService("Players")
@@ -42,7 +42,7 @@ title.Size = UDim2.new(1, -130, 0, 44)
 title.Position = UDim2.new(0, 24, 0, 10)
 title.BackgroundTransparency = 1
 title.Font = mainFont
-title.Text = "Perplexity Admin Console"
+title.Text = "Perplexity Console"
 title.TextColor3 = Color3.fromRGB(255, 100, 100)
 title.TextSize = 30
 title.TextXAlignment = Enum.TextXAlignment.Left
