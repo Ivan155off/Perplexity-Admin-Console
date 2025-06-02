@@ -1,4 +1,4 @@
--- Perplexity Admin Console vUltimate 
+-- Perplexity Admin Console 
 -- Authour: Perplexity
 
 local Players = game:GetService("Players")
