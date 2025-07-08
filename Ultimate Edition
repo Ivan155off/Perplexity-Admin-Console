@@ -1,0 +1,501 @@
+-- Perplexity Admin Console vUltimate — Maximum features and convenience
+-- Author: Perplexity 
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local SoundService = game:GetService("SoundService")
+local LocalPlayer = Players.LocalPlayer
+
+local function getFredokaFont()
+    for _, f in ipairs(Enum.Font:GetEnumItems()) do
+        if tostring(f):lower():find("fredoka") then
+            return f
+        end
+    end
+    return Enum.Font.Gotham
+end
+local mainFont = getFredokaFont()
+
+-- GUI
+local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+gui.Name = "PerplexityAdminConsole"
+gui.ResetOnSpawn = false
+
+-- Saved settings
+local settings = {
+    framePos = UDim2.new(0.5, -350, 0.6, 0),
+    frameSize = UDim2.new(0, 700, 0, 460)
+}
+
+local frame = Instance.new("Frame", gui)
+frame.Size = settings.frameSize
+frame.Position = UDim2.new(0.5, -350, 1, 400)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BackgroundTransparency = 0.2
+frame.BorderColor3 = Color3.fromRGB(255, 60, 60)
+frame.BorderSizePixel = 0
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.Visible = true
+
+local frameStroke = Instance.new("UIStroke", frame)
+frameStroke.Thickness = 2
+frameStroke.Color = Color3.fromRGB(0, 0, 0)
+
+-- Smooth black-to-orange transition for UIStroke
+RunService.Heartbeat:Connect(function()
+    local t = math.sin(tick() * 0.5) * 0.5 + 0.5
+    frameStroke.Color = Color3.fromRGB(255 * t, 165 * t, 0)
+end)
+
+local frameCorner = Instance.new("UICorner", frame)
+frameCorner.CornerRadius = UDim.new(0, 8)
+
+-- Title bar
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, -130, 0, 44)
+title.Position = UDim2.new(0, 24, 0, 10)
+title.BackgroundTransparency = 1
+title.Font = mainFont
+title.Text = "Perplexity Admin Console — "
+title.TextColor3 = Color3.fromRGB(255, 100, 100)
+title.TextSize = 30
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextScaled = true
+title.TextWrapped = true
+
+-- Ultimate label with smooth black-to-red transition
+local ultimateLabel = Instance.new("TextLabel", title)
+ultimateLabel.Size = UDim2.new(0, 100, 1, 0)
+ultimateLabel.Position = UDim2.new(1, -100, 0, 0)
+ultimateLabel.BackgroundTransparency = 1
+ultimateLabel.Font = mainFont
+ultimateLabel.Text = "Ultimate Edition"
+ultimateLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+ultimateLabel.TextSize = 30
+ultimateLabel.TextXAlignment = Enum.TextXAlignment.Left
+ultimateLabel.TextScaled = true
+ultimateLabel.TextWrapped = true
+
+local ultimateGradient = Instance.new("UIGradient", ultimateLabel)
+ultimateGradient.Rotation = 45
+ultimateGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.new(0, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.new(1, 0, 0)),
+    ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0))
+})
+ultimateGradient.Offset = Vector2.new(0, 0)
+
+RunService.Heartbeat:Connect(function()
+    local offset = math.sin(tick() * 0.5) * 0.5
+    TweenService:Create(ultimateGradient, TweenInfo.new(1, Enum.EasingStyle.Sine), {Offset = Vector2.new(offset, 0)}):Play()
+end)
+
+local hideBtn = Instance.new("TextButton", frame)
+hideBtn.Size = UDim2.new(0, 38, 0, 38)
+hideBtn.Position = UDim2.new(1, -110, 0, 10)
+hideBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+hideBtn.Text = "–"
+hideBtn.Font = mainFont
+hideBtn.TextColor3 = Color3.new(1, 1, 1)
+hideBtn.TextSize = 30
+hideBtn.TextScaled = true
+hideBtn.TextWrapped = true
+local hideBtnCorner = Instance.new("UICorner", hideBtn)
+hideBtnCorner.CornerRadius = UDim.new(0, 10)
+
+local closeBtn = Instance.new("TextButton", frame)
+closeBtn.Size = UDim2.new(0, 38, 0, 38)
+closeBtn.Position = UDim2.new(1, -60, 0, 10)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeBtn.Text = "X"
+closeBtn.Font = mainFont
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.TextSize = 26
+closeBtn.TextScaled = true
+closeBtn.TextWrapped = true
+local closeBtnCorner = Instance.new("UICorner", closeBtn)
+closeBtnCorner.CornerRadius = UDim.new(0, 10)
+
+-- Resize grip
+local resizeGrip = Instance.new("Frame", frame)
+resizeGrip.Size = UDim2.new(0, 24, 0, 24)
+resizeGrip.Position = UDim2.new(1, -24, 1, -24)
+resizeGrip.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+resizeGrip.BackgroundTransparency = 0.3
+resizeGrip.BorderSizePixel = 0
+resizeGrip.ZIndex = 10
+local resizeCorner = Instance.new("UICorner", resizeGrip)
+resizeCorner.CornerRadius = UDim.new(0, 10)
+local resizeIcon = Instance.new("ImageLabel", resizeGrip)
+resizeIcon.BackgroundTransparency = 1
+resizeIcon.Size = UDim2.new(1, 0, 1, 0)
+resizeIcon.Image = "rbxassetid://3926305904"
+resizeIcon.ImageRectOffset = Vector2.new(964, 324)
+resizeIcon.ImageRectSize = Vector2.new(36, 36)
+
+-- Input box
+local inputBox = Instance.new("TextBox", frame)
+inputBox.Size = UDim2.new(1, -32, 0, 40)
+inputBox.Position = UDim2.new(0, 16, 1, -60)
+inputBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+inputBox.BackgroundTransparency = 0.15
+inputBox.TextColor3 = Color3.new(1, 1, 1)
+inputBox.Font = mainFont
+inputBox.PlaceholderText = "Enter the command"
+inputBox.TextSize = 22
+inputBox.ClearTextOnFocus = false
+inputBox.Text = ""
+inputBox.TextScaled = true
+inputBox.TextWrapped = true
+local inputCorner = Instance.new("UICorner", inputBox)
+inputCorner.CornerRadius = UDim.new(0, 10)
+
+-- Input box hover animation
+inputBox.MouseEnter:Connect(function()
+    TweenService:Create(inputBox, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {Size = UDim2.new(1, -28, 0, 42)}):Play()
+end)
+inputBox.MouseLeave:Connect(function()
+    TweenService:Create(inputBox, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {Size = UDim2.new(1, -32, 0, 40)}):Play()
+end)
+
+-- Output frame
+local outputFrame = Instance.new("ScrollingFrame", frame)
+outputFrame.Size = UDim2.new(0.65, -20, 1, -120)
+outputFrame.Position = UDim2.new(0, 16, 0, 60)
+outputFrame.BackgroundTransparency = 1
+outputFrame.BorderSizePixel = 0
+outputFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+outputFrame.ScrollBarThickness = 8
+local uiListLayout = Instance.new("UIListLayout", outputFrame)
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+uiListLayout.Padding = UDim.new(0, 8)
+
+-- Command list frame
+local cmdListFrame = Instance.new("Frame", frame)
+cmdListFrame.Size = UDim2.new(0.35, -20, 1, -120)
+cmdListFrame.Position = UDim2.new(0.65, 16, 0, 60)
+cmdListFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+cmdListFrame.BackgroundTransparency = 0.25
+cmdListFrame.BorderSizePixel = 0
+local cmdListCorner = Instance.new("UICorner", cmdListFrame)
+cmdListCorner.CornerRadius = UDim.new(0, 16)
+
+local cmdListTitle = Instance.new("TextLabel", cmdListFrame)
+cmdListTitle.Size = UDim2.new(1, -24, 0, 36)
+cmdListTitle.Position = UDim2.new(0, 12, 0, 12)
+cmdListTitle.BackgroundTransparency = 1
+cmdListTitle.Font = mainFont
+cmdListTitle.Text = "Command List"
+cmdListTitle.TextColor3 = Color3.fromRGB(255, 100, 100)
+cmdListTitle.TextSize = 22
+cmdListTitle.TextXAlignment = Enum.TextXAlignment.Left
+cmdListTitle.TextScaled = true
+cmdListTitle.TextWrapped = true
+
+local cmdScrolling = Instance.new("ScrollingFrame", cmdListFrame)
+cmdScrolling.Size = UDim2.new(1, -24, 1, -60)
+cmdScrolling.Position = UDim2.new(0, 12, 0, 52)
+cmdScrolling.BackgroundTransparency = 1
+cmdScrolling.BorderSizePixel = 0
+cmdScrolling.CanvasSize = UDim2.new(0, 0, 0, 0)
+cmdScrolling.ScrollBarThickness = 8
+
+local cmdListLayout = Instance.new("UIListLayout", cmdScrolling)
+cmdListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+cmdListLayout.Padding = UDim.new(0, 6)
+
+-- Sound for button interactions
+local function playClickSound()
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://6895079853"
+    sound.Volume = 0.5
+    sound.Parent = SoundService
+    sound:Play()
+    game.Debris:AddItem(sound, 2)
+end
+
+-- Print message function
+local function printMessage(text, color)
+    local msg = Instance.new("TextLabel")
+    msg.Size = UDim2.new(1, 0, 0, 28)
+    msg.BackgroundTransparency = 1
+    msg.Font = mainFont
+    msg.TextSize = 20
+    msg.TextColor3 = color or Color3.new(1, 1, 1)
+    msg.Text = text
+    msg.TextXAlignment = Enum.TextXAlignment.Left
+    msg.TextScaled = true
+    msg.TextWrapped = true
+    msg.TextTransparency = 1
+    msg.Parent = outputFrame
+
+    TweenService:Create(msg, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {TextTransparency = 0}):Play()
+    outputFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y)
+    outputFrame.CanvasPosition = Vector2.new(0, outputFrame.CanvasSize.Y.Offset)
+end
+
+-- Utility function to find player by name
+local function findPlayer(name)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Name:lower():find(name:lower()) then
+            return player
+        end
+    end
+    return nil
+end
+
+-- Command system
+local commands = {}
+local commandNames = {}
+
+local function addCommand(name, func, desc)
+    commands[name:lower()] = {callback = func, desc = desc}
+    table.insert(commandNames, name)
+    -- Add to command list UI as a button
+    local cmdItem = Instance.new("TextButton")
+    cmdItem.Size = UDim2.new(1, 0, 0, 24)
+    cmdItem.BackgroundTransparency = 1
+    cmdItem.Font = mainFont
+    cmdItem.TextSize = 18
+    cmdItem.TextColor3 = Color3.fromRGB(255, 255, 255)
+    cmdItem.Text = name .. " — " .. desc
+    cmdItem.TextXAlignment = Enum.TextXAlignment.Left
+    cmdItem.TextScaled = true
+    cmdItem.TextWrapped = true
+    cmdItem.TextTransparency = 1
+    cmdItem.Parent = cmdScrolling
+
+    -- Fade-in animation for command items
+    TweenService:Create(cmdItem, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {TextTransparency = 0}):Play()
+
+    -- Button animations
+    local originalSize = cmdItem.Size
+    cmdItem.MouseEnter:Connect(function()
+        playClickSound()
+        TweenService:Create(cmdItem, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset * 1.1, originalSize.Y.Scale, originalSize.Y.Offset * 1.1)}):Play()
+    end)
+    cmdItem.MouseLeave:Connect(function()
+        TweenService:Create(cmdItem, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {Size = originalSize}):Play()
+    end)
+    cmdItem.MouseButton1Click:Connect(function()
+        playClickSound()
+        inputBox.Text = name
+        inputBox:CaptureFocus()
+        TweenService:Create(cmdItem, TweenInfo.new(0.15, Enum.EasingStyle.Sine), {Size = UDim2.new(originalSize.X.Scale, originalSize.X.Offset * 1.15, originalSize.Y.Scale, originalSize.Y.Offset * 1.15)}):Play()
+        wait(0.15)
+        TweenService:Create(cmdItem, TweenInfo.new(0.15, Enum.EasingStyle.Sine), {Size = originalSize}):Play()
+    end)
+
+    cmdScrolling.CanvasSize = UDim2.new(0, 0, 0, cmdListLayout.AbsoluteContentSize.Y)
+end
+
+-- === COMMANDS ===
+-- Fly / Unfly
+local flyConn, flyGyro, flyBV
+addCommand("fly", function()
+    local character = LocalPlayer.Character
+    if not character then printMessage("Character not loaded.", Color3.fromRGB(255, 100, 100)) return end
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not hrp or not humanoid then printMessage("No HumanoidRootPart.", Color3.fromRGB(255, 100, 100)) return end
+    if flyBV or flyGyro then
+        printMessage("Already flying. Use 'unfly' to stop.", Color3.fromRGB(255, 200, 100))
+        return
+    end
+    flyBV = Instance.new("BodyVelocity")
+    flyBV.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+    flyBV.Velocity = Vector3.new(0, 0, 0)
+    flyBV.Parent = hrp
+
+    flyGyro = Instance.new("BodyGyro")
+    flyGyro.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+    flyGyro.CFrame = hrp.CFrame
+    flyGyro.P = 1e4
+    flyGyro.Parent = hrp
+
+    humanoid.PlatformStand = true
+    printMessage("Fly enabled. WASD — move, Space — up, Shift — down.", Color3.fromRGB(100, 255, 100))
+
+    flyConn = RunService.RenderStepped:Connect(function()
+        if not flyBV or not flyGyro or not hrp or not humanoid then return end
+        local move = Vector3.new()
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then move = move + hrp.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then move = move - hrp.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then move = move - hrp.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then move = move + hrp.CFrame.RightVector end
+        local up = UserInputService:IsKeyDown(Enum.KeyCode.Space) and 1 or 0
+        local down = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) and 1 or 0
+        local speed = 60
+        local y = (up - down) * speed
+        local v = move.Magnitude > 0 and move.Unit * speed or Vector3.new()
+        flyBV.Velocity = Vector3.new(v.X, y, v.Z)
+        flyGyro.CFrame = workspace.CurrentCamera.CFrame
+    end)
+end, "Enable fly (WASD, Space=up, Shift=down)")
+
+addCommand("unfly", function()
+    local character = LocalPlayer.Character
+    if not character then printMessage("Character not loaded.", Color3.fromRGB(255, 100, 100)) return end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then humanoid.PlatformStand = false end
+    if flyBV then flyBV:Destroy() flyBV = nil end
+    if flyGyro then flyGyro:Destroy() flyGyro = nil end
+    if flyConn then flyConn:Disconnect() flyConn = nil end
+    printMessage("Fly disabled.", Color3.fromRGB(255, 150, 150))
+end, "Disable fly")
+
+-- Noclip / Unnoclip
+local noclipConns = {}
+addCommand("noclip", function(args)
+    local player = args[2] and findPlayer(args[2]) or LocalPlayer
+    if not player then printMessage("Player not found.", Color3.fromRGB(255, 100, 100)) return end
+    if noclipConns[player] then printMessage("Already noclipping. Use 'unnoclip' to stop.", Color3.fromRGB(255, 200, 100)) return end
+    printMessage("Noclip enabled for " .. player.Name .. ".", Color3.fromRGB(100, 255, 100))
+    noclipConns[player] = RunService.Stepped:Connect(function()
+        local char = player.Character
+        if char then
+            for _, part in pairs(char:GetChildren()) do
+                if part:IsA("BasePart") then part.CanCollide = false end
+            end
+        end
+    end)
+end, "Enable noclip (noclip [player])")
+
+addCommand("unnoclip", function(args)
+    local player = args[2] and findPlayer(args[2]) or LocalPlayer
+    if not player then printMessage("Player not found.", Color3.fromRGB(255, 100, 100)) return end
+    if noclipConns[player] then
+        noclipConns[player]:Disconnect()
+        noclipConns[player] = nil
+    end
+    local char = player.Character
+    if char then
+        for _, part in pairs(char:GetChildren()) do
+            if part:IsA("BasePart") then part.CanCollide = true end
+        end
+    end
+    printMessage("Noclip disabled for " .. player.Name .. ".", Color3.fromRGB(255, 150, 150))
+end, "Disable noclip (unnoclip [player])")
+
+-- ESP / Unesp
+local espHighlights = {}
+local espActive = false
+local function applyESP(player)
+    if player ~= LocalPlayer and player.Character and not espHighlights[player] then
+        local h = Instance.new("Highlight")
+        h.Name = "PA_ESP"
+        h.Adornee = player.Character
+        h.FillColor = Color3.fromRGB(255, 60, 60)
+        h.OutlineColor = Color3.fromRGB(255, 255, 255)
+        h.FillTransparency = 0.25
+        h.OutlineTransparency = 0
+        h.Parent = game:GetService("CoreGui")
+        espHighlights[player] = h
+        -- Update highlight when character respawns
+        player.CharacterAdded:Connect(function(newChar)
+            if espActive then
+                h.Adornee = newChar
+            end
+        end)
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    if espActive then
+        applyESP(player)
+    end
+end)
+
+addCommand("esp", function()
+    espActive = true
+    espHighlights = {} -- Clear existing highlights
+    for _, p in pairs(Players:GetPlayers()) do
+        applyESP(p)
+    end
+    printMessage("ESP enabled (Highlight).", Color3.fromRGB(100, 255, 100))
+end, "Highlight all players")
+
+addCommand("unesp", function()
+    espActive = false
+    for _, h in pairs(espHighlights) do
+        if h and h.Parent then h:Destroy() end
+    end
+    espHighlights = {}
+    printMessage("ESP removed.", Color3.fromRGB(255, 150, 150))
+end, "Remove ESP")
+
+-- Bang
+addCommand("bang", function()
+    local character = LocalPlayer.Character
+    if not character then printMessage("Character not loaded.", Color3.fromRGB(255, 100, 100)) return end
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if hrp then hrp.Velocity = Vector3.new(0, 120, 0) end
+    printMessage("Bang: launched up!", Color3.fromRGB(100, 255, 100))
+end, "Launch yourself up")
+
+-- Invisible / Uninvisible
+addCommand("invisible", function(args)
+    local player = args[2] and findPlayer(args[2]) or LocalPlayer
+    if not player then printMessage("Player not found.", Color3.fromRGB(255, 100, 100)) return end
+    local character = player.Character
+    if not character then printMessage("Character not loaded.", Color3.fromRGB(255, 100, 100)) return end
+    for _, part in pairs(character:GetChildren()) do
+        if part:IsA("BasePart") then part.Transparency = 1 end
+        if part:IsA("Decal") then part.Transparency = 1 end
+    end
+    printMessage("Invisibility enabled for " .. player.Name .. ".", Color3.fromRGB(100, 255, 100))
+end, "Enable invisibility (invisible [player])")
+
+addCommand("uninvisible", function(args)
+    local player = args[2] and findPlayer(args[2]) or LocalPlayer
+    if not player then printMessage("Player not found.", Color3.fromRGB(255, 100, 100)) return end
+    local character = player.Character
+    if not character then printMessage("Character not loaded.", Color3.fromRGB(255, 100, 100)) return end
+    for _, part in pairs(character:GetChildren()) do
+        if part:IsA("BasePart") then part.Transparency = 0 end
+        if part:IsA("Decal") then part.Transparency = 0 end
+    end
+    printMessage("Invisibility disabled for " .. player.Name .. ".", Color3.fromRGB(255, 150, 150))
+end, "Disable invisibility (uninvisible [player])")
+
+-- Speed / Jumppower
+addCommand("speed", function(args)
+    local player = args[2] and findPlayer(args[2]) or LocalPlayer
+    local speed = tonumber(args[3] or args[2])
+    if not player then printMessage("Player not found.", Color3.fromRGB(255, 100, 100)) return end
+    if not speed or speed < 0 then printMessage("Usage: speed [player] [number] or speed [number]", Color3.fromRGB(255, 100, 100)) return end
+    local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = speed
+        printMessage("WalkSpeed set to " .. speed .. " for " .. player.Name .. ".", Color3.fromRGB(100, 255, 100))
+    else
+        printMessage("Humanoid not found.", Color3.fromRGB(255, 100, 100))
+    end
+end, "Set walkspeed (speed [player] [number] or speed [number])")
+
+addCommand("jumppower", function(args)
+    local player = args[2] and findPlayer(args[2]) or LocalPlayer
+    local jump = tonumber(args[3] or args[2])
+    if not player then printMessage("Player not found.", Color3.fromRGB(255, 100, 100)) return end
+    if not jump or jump < 0 then printMessage("Usage: jumppower [player] [number] or jumppower [number]", Color3.fromRGB(255, 100, 100)) return end
+    local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.JumpPower = jump
+        printMessage("JumpPower set to " .. jump .. " for " .. player.Name .. ".", Color3.fromRGB(100, 255, 100))
+    else
+        printMessage("Humanoid not found.", Color3.fromRGB(255, 100, 100))
+    end
+end, "Set jump power (jumppower [player] [number] or jumppower [number])")
+
+-- Kick
+addCommand("kick", function()
+    LocalPlayer:Kick("You have been kicked by Perplexity Admin.")
+end, "Kick yourself from the game")
+
+-- Freeze / Unfreeze
+local freezeConns = {}
+addCommand("freeze", function(args)
+    local player = a
